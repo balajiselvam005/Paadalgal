@@ -1,12 +1,15 @@
 package com.paadalgal.Paadalgal.controller;
 
+import com.paadalgal.Paadalgal.service.SongService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController("/api/song")
+import java.io.IOException;
+
+@RestController
+@RequestMapping("/api/song")
 public class SongController {
 
     private final SongService songService;
@@ -16,8 +19,13 @@ public class SongController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadSong(@RequestParam MultipartFile file) {
-        String url = songService.uploadSong(file);
-        return ResponseEntity<String>
+    public ResponseEntity<String> uploadSong(@RequestParam("file") MultipartFile file) {
+        try {
+            String url = songService.uploadSong(file);
+            return ResponseEntity.ok(url);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload song: " + e.getMessage());
+        }
     }
 }

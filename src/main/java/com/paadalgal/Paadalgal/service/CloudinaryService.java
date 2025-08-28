@@ -15,11 +15,14 @@ public class CloudinaryService {
 
     @Autowired
     private Cloudinary cloudinary;
-    public Map uploadFile(MultipartFile file) throws IOException {
-        return cloudinary.uploader().upload(file.getBytes(),
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> uploadFile(MultipartFile file) throws IOException {
+        return (Map<String, Object>) cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap("resource_type", "auto"));
     }
-    public Map getFileDetails(String publicId) throws Exception {
-        return cloudinary.api().resource(publicId, ObjectUtils.emptyMap());
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getFileDetails(String publicId) throws Exception {
+        return(Map<String, Object>)  cloudinary.api().resource(publicId, ObjectUtils.emptyMap());
     }
 }
