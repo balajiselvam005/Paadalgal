@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -19,11 +21,15 @@ public class SongService {
         this.songRepository = songRepository;
     }
 
-    public String uploadSong(MultipartFile file) throws IOException {
+    public List<String> uploadSong(List<MultipartFile> files) throws IOException {
+        List<String> songUrls = new ArrayList<>();
+
+        for(MultipartFile file : files) {
 
         Map<String, Object> uploadResult = cloudinaryService.uploadFile(file);
-        String cloudinaryFileUrl = (String) uploadResult.get("secure_url");
+        String url = (String) uploadResult.get("secure_url");
 
+        songUrls.add(url);
 
         String publicId = (String) uploadResult.get("public_id");
         String originalFilename = file.getOriginalFilename();
@@ -37,11 +43,18 @@ public class SongService {
 
         Song song = new Song();
         song.setTitle(title);
-        song.setSongUrl(cloudinaryFileUrl);
+        song.setSongUrl(url);
         song.setDuration(duration);
 
         songRepository.save(song);
+        }
 
-        return cloudinaryFileUrl;
+        return songUrls;
     }
+    public String getById(Long songId) {
+        return songRepository.findById(songId)
+                .map(Song::getSongUrl)
+                .orElseThrow(() -> new RuntimeException("Song not found with id: " + songId));
+    }
+
 }
